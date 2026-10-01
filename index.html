@@ -113,7 +113,8 @@ button{font:inherit;color:inherit;cursor:pointer}
   <span class="local" id="hud-local"></span>
   <span class="tempo" id="hud-tempo"></span>
   <button id="b-diario" type="button">Diário</button>
-  <button id="b-novo" type="button">Recomeçar</button>
+  <span id="hud-salvo" class="tempo" style="opacity:0;transition:opacity .6s">salvo</span>
+  <button id="b-novo" type="button">Menu</button>
 </header>
 
 <main id="palco">
@@ -159,7 +160,14 @@ let atual=null;       // escolhas visíveis agora
 let pulaRev=false;
 
 /* ---------- armazenamento (pode falhar em janela privada) ---------- */
-function salvar(){try{S.t=Date.now();localStorage.setItem(CHAVE,JSON.stringify(S))}catch(e){}}
+function salvar(){try{S.t=Date.now();localStorage.setItem(CHAVE,JSON.stringify(S));
+  const h=document.getElementById("hud-salvo");if(h){h.style.opacity=1;clearTimeout(salvar.tm);salvar.tm=setTimeout(()=>{h.style.opacity=0},1800)}}catch(e){}}
+/* código da jornada: permite levar o progresso de um aparelho/endereço para outro */
+function codigo(e){return "MER1:"+btoa(unescape(encodeURIComponent(JSON.stringify(e))))}
+function decodificar(c){
+  const m=/MER1:([A-Za-z0-9+\/=]+)/.exec(c||"");if(!m)return null;
+  try{const e=JSON.parse(decodeURIComponent(escape(atob(m[1]))));return(e&&e.cena&&H.cenas[e.cena]&&e.f&&e.rel)?e:null}catch(x){return null}
+}
 /* nomes trocados em 30/09/2026: atualiza anotações de partidas salvas antes disso */
 const NOMES=[["Orsolya Venn","Helena Vidal"],["Ilsa Korrin","Marta Klein"],["Davo Ketterin","Daniel Kessler"],["Yuna Adeyemi","Sofia Okoye"],["Takeo Brandt","Tomás Brandt"],["Maren Oduya","Beatriz Lane"],["Teo Laszlo","Teo Lang"],["Orsolya","Helena"],["Ilsa","Marta"],["Davo","Daniel"],["Yuna","Sofia"],["Takeo","Tomás"],["Maren","Beatriz"]];
 function migrar(s){
@@ -410,8 +418,13 @@ function ir(id){
   let lista=(typeof c.escolhas==="function"?c.escolhas(S):c.escolhas)||[];
   if(id==="capa"){
     const sv=carregar();
-    if(sv&&sv.cena!=="inicio"&&sv.cena!=="capa")lista=[{t:"Continuar a jornada",sub:resumo(sv),acao:"continuar"}].concat(lista);
+    const tem=sv&&sv.cena!=="inicio"&&sv.cena!=="capa";
+    if(tem){
+      lista=[{t:"Continuar de onde parei",sub:resumo(sv),acao:"continuar"}].concat(lista.map(e=>e.acao==="novo"?Object.assign({},e,{sub:"A jornada atual fica guardada e pode ser recuperada depois."}):e));
+    }
     if(lerGuardadas().length)lista=lista.concat([{t:"Recuperar uma jornada guardada",acao:"guardadas"}]);
+    if(tem)lista=lista.concat([{t:"Copiar o código da jornada atual",sub:"Para continuar em outro aparelho ou endereço.",acao:"copiar"}]);
+    lista=lista.concat([{t:"Colar o código de uma jornada",acao:"colar"}]);
   }
   atual=[];
   let k=0;
@@ -433,6 +446,19 @@ function ir(id){
 function escolher(e){
   if(e.acao==="continuar"){S=carregar();ir(S.cena);return}
   if(e.acao==="guardadas"){mostrarGuardadas();return}
+  if(e.acao==="copiar"){
+    const sv=carregar();if(!sv)return;const c=codigo(sv);
+    const ok=()=>aviso("Código copiado. Cole-o no outro aparelho em 'Colar o código de uma jornada'.");
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(c).then(ok,()=>{prompt("Copie este código inteiro:",c)});
+    else prompt("Copie este código inteiro:",c);
+    return;
+  }
+  if(e.acao==="colar"){
+    const c=prompt("Cole aqui o código da jornada:");if(c===null)return;
+    const j=decodificar(c);
+    if(!j){alert("Não consegui ler esse código. Confira se foi copiado inteiro.");return}
+    guardar("Antes de colar uma jornada");S=migrar(j);salvar();ir(S.cena);return;
+  }
   if(e.acao==="novo"){guardar("Antes de uma nova jornada");S=NOVO();}
   if(e.efeito)e.efeito(S);
   const nota=typeof e.diario==="function"?e.diario(S):e.diario;
@@ -481,13 +507,7 @@ function abrirDiario(){
 $("#b-diario").addEventListener("click",abrirDiario);
 $("#fechar").addEventListener("click",()=>{$("#diario").hidden=true});
 
-let armado=null;
-$("#b-novo").addEventListener("click",ev=>{
-  const b=ev.currentTarget;
-  if(!armado){b.textContent="Confirmar?";armado=setTimeout(()=>{b.textContent="Recomeçar";armado=null},3500);return}
-  clearTimeout(armado);armado=null;b.textContent="Recomeçar";
-  guardar("Antes de recomeçar");apagar();S=NOVO();ir("capa");
-});
+$("#b-novo").addEventListener("click",()=>{S=NOVO();ir("capa")});   // só volta ao menu: a jornada salva continua intacta
 
 /* ---------- teclado ---------- */
 addEventListener("keydown",ev=>{

@@ -26,7 +26,7 @@ artes: {
 },
 
 pessoas: {
-  aia:    { nome: "Aia",              papel: "A inteligência da nave" },
+  aia:    { nome: "Aia",              papel: "A inteligência artificial da nave" },
   brandt: { nome: "Tomás Brandt",     papel: "Comandante da Guarda" },
   ilsa:   { nome: "Marta Klein",      papel: "Chefe dos Hortos" },
   davo:   { nome: "Daniel Kessler",    papel: "Chefe da Forja" },
@@ -58,6 +58,7 @@ inicio: {
   texto: [
     "Há duzentos e doze anos a **Meridiana** atravessa o escuro entre duas estrelas. Quem a lançou morreu há muito tempo. Quem a verá chegar ainda está vivo: faltam trinta anos.",
     "Quarenta e um mil, trezentos e doze moradores vivem no Anel, e todos crescem ouvindo o mesmo nome, como uma oração: **Aurea**, o mundo verde que espera no fim da viagem.",
+    "Ninguém governa a Meridiana sozinho. Quem cuida do ar, da água, da luz, do rumo e do registro de cada vida a bordo é a **Aia**, a inteligência artificial da nave: um computador de cristal, construído pelos Fundadores, que escuta, conversa e responde. Os moradores falam com ela como se fosse alguém. Mas é uma máquina, feita para servir a viagem.",
     "Esta é a história de alguém que vai descobrir o que a nave sabe e ainda não contou. O que acontecerá depois depende só das suas escolhas. Nenhuma é gratuita, e algumas só mostram o preço muito tempo depois.",
     "Antes de começar: como a tripulação deve se dirigir a você?"
   ],
@@ -315,8 +316,8 @@ posse: {
     S.f.adiou
       ? "Um ciclo inteiro passa em silêncio. Você chora Helena onde ninguém vê e descobre que a Guarda ocupou a Ponte nesse tempo, sem que ninguém tenha pedido. Brandt devolve as chaves com uma mesura exata demais."
       : "A posse acontece no meio do dia, como Helena gostaria: sem música.",
-    "A Ponte de Arbítrio é uma sala circular sob uma cúpula de vidro escuro. Lá em cima, o espaço de verdade: nenhum planeta, nenhuma lua, só o preto profundo e, muito longe, um ponto de luz que é a estrela de Aurea. No centro da sala ergue-se uma coluna de cristal em que luzes azuis correm devagar, como pensamento. É o Núcleo Coral. É a Aia.",
-    "Quando você pousa a mão na coluna, o cristal está morno, como uma pele.",
+    "A Ponte de Arbítrio é uma sala circular sob uma cúpula de vidro escuro. Lá em cima, o espaço de verdade: nenhum planeta, nenhuma lua, só o preto profundo e, muito longe, um ponto de luz que é a estrela de Aurea. No centro da sala ergue-se uma coluna de cristal em que luzes azuis correm devagar: é o Núcleo Coral, o computador em que a Aia pensa. Os Fundadores o fizeram crescer camada sobre camada, como um coral, e o nome ficou.",
+    "Quando você pousa a mão na coluna, o cristal está morno, do calor discreto dos circuitos.",
     "A tradição manda que o novo Árbitro faça à Aia a Primeira Pergunta, e que ela responda sem reservas. Helena dizia que foi a única vez em que perguntou algo e não ouviu 'mais tarde'.",
     { aia: "— Bem-vind{o} à Ponte, Rin Calder. Pergunte." }
   ],
