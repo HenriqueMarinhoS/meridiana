@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meridiana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#05080d; --ink:#E7EEF4; --mute:#93A4B3; --line:rgba(140,190,230,.22);
+  --cy:#6FD3E0; --am:#E9B872; --rd:#E0655A; --glass:rgba(7,12,19,.58);
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --hud:"Chakra Petch","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:18px;line-height:1.65;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+[hidden]{display:none!important}
+
+/* fundo */
+#arte{position:fixed;inset:0;z-index:0;background:var(--bg)}
+#estrelas,.foto{position:absolute;inset:0;width:100%;height:100%}
+.foto{background-size:cover;background-position:center;opacity:0;transition:opacity 1.4s ease}
+.foto.on{opacity:1}
+.veu{position:absolute;inset:0;background:
+  radial-gradient(ellipse at 50% 50%,transparent 0,rgba(3,6,10,.55) 85%)}
+
+/* barra superior */
+.hud{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:14px;padding:12px 20px;font-family:var(--hud);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);background:linear-gradient(to bottom,rgba(3,6,10,.85),transparent)}
+.hud .marca{color:var(--ink);font-weight:600;letter-spacing:.3em}
+.hud .sep{opacity:.4}
+.hud .local{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hud .tempo{margin-left:auto;font-family:var(--mono);letter-spacing:.06em;white-space:nowrap}
+.hud button{background:none;border:1px solid var(--line);border-radius:3px;padding:5px 10px;font:inherit;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.hud button:hover{color:var(--ink);border-color:var(--cy)}
+
+/* palco e texto */
+#palco{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;padding:64px 24px 24px}
+#livro{width:min(780px,100%);max-height:100%;overflow-y:auto;padding:26px 30px 24px;background:var(--glass);border:1px solid var(--line);border-radius:6px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);text-shadow:0 1px 3px rgba(0,0,0,.6);scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.cap{font-family:var(--hud);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--cy);margin-bottom:6px}
+#titulo{font-family:var(--hud);font-weight:500;font-size:clamp(24px,3.2vw,32px);line-height:1.15;margin:0 0 14px;letter-spacing:.02em}
+#texto p{margin:0 0 .95em}
+.rev{opacity:0;transform:translateY(6px);animation:ent .7s ease forwards}
+@keyframes ent{to{opacity:1;transform:none}}
+.aia{font-family:var(--mono);font-size:15.5px;line-height:1.6;color:var(--cy);border-left:2px solid var(--cy);padding:2px 0 2px 14px;margin:1.1em 0!important}
+.nota{font-style:italic;color:var(--am);border-left:2px solid var(--am);padding:2px 0 2px 14px;margin:1.1em 0!important}
+.fala b{font-weight:600}
+#escolhas{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.esc{display:flex;gap:12px;align-items:baseline;text-align:left;background:rgba(14,24,36,.62);border:1px solid var(--line);border-radius:4px;padding:11px 14px;line-height:1.45;opacity:0;animation:ent .6s ease forwards;transition:border-color .15s,background .15s}
+.esc:hover:not(:disabled){border-color:var(--cy);background:rgba(20,38,56,.85)}
+.esc .n{font-family:var(--mono);font-size:13px;color:var(--cy);flex:none}
+.esc:disabled{opacity:.42!important;cursor:not-allowed}
+.esc small{display:block;color:var(--mute);font-size:13.5px;margin-top:2px}
+
+/* capa e fim */
+.capa #titulo{font-size:clamp(40px,7vw,72px);letter-spacing:.32em;margin-bottom:6px}
+#texto p.sub{font-size:20px;color:var(--mute);max-width:560px;margin-bottom:1em}
+.fimtag{font-family:var(--hud);letter-spacing:.3em;text-transform:uppercase;font-size:13px;color:var(--am);margin-bottom:6px}
+
+/* avisos */
+#toasts{position:fixed;top:58px;right:18px;z-index:9;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+.toast{background:var(--glass);border:1px solid var(--line);border-left:3px solid var(--cy);border-radius:3px;padding:8px 14px;font-family:var(--hud);font-size:14px;letter-spacing:.03em;animation:ent .4s ease forwards,sai .5s ease 4.2s forwards;opacity:0}
+.toast.neg{border-left-color:var(--rd)}
+.toast.dia{border-left-color:var(--am)}
+@keyframes sai{to{opacity:0;transform:translateX(12px)}}
+
+/* diário */
+#diario{position:fixed;top:0;right:0;bottom:0;width:min(400px,100%);z-index:8;background:rgba(5,9,14,.96);border-left:1px solid var(--line);padding:60px 22px 22px;overflow-y:auto;transform:translateX(0);transition:transform .25s}
+#diario[hidden]{display:block!important;transform:translateX(105%);visibility:hidden}
+#diario h2{font-family:var(--hud);font-weight:500;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--cy);margin:20px 0 10px}
+#diario h2:first-of-type{margin-top:0}
+#diario ol{margin:0;padding-left:20px;font-size:15.5px;line-height:1.5}
+#diario li{margin-bottom:9px}
+#diario .quem{display:flex;justify-content:space-between;gap:10px;font-size:15px;padding:7px 0;border-bottom:1px dashed var(--line)}
+#diario .quem span:last-child{font-family:var(--hud);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+#diario .quem small{display:block;color:var(--mute);font-size:13px}
+#fechar{position:absolute;top:12px;right:14px;background:none;border:1px solid var(--line);border-radius:3px;padding:4px 10px;font-family:var(--hud);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.vazio{color:var(--mute);font-style:italic;font-size:15px}
+
+@media (max-width:720px){
+  body{font-size:17px}
+  .hud{padding:10px 14px;gap:8px;font-size:11px}
+  .hud .local,.hud .sep,.hud .tempo{display:none}
+  .hud .marca{letter-spacing:.22em}
+  .hud button:first-of-type{margin-left:auto}
+  #cap::after{content:attr(data-q)}
+  #palco{padding:52px 10px 10px}
+  #livro{padding:20px 18px 18px}
+}
+@media (prefers-reduced-motion:reduce){
+  .rev,.esc,.toast{animation-duration:.01s!important;animation-delay:0s!important}
+  .foto{transition:none}
+}
+</style>
+</head>
+<body>
+
+<div id="arte" aria-hidden="true">
+  <canvas id="estrelas"></canvas>
+  <div class="foto" id="fa"></div><div class="foto" id="fb"></div>
+  <div class="veu"></div>
+</div>
+
+<header class="hud">
+  <span class="marca">Meridiana</span><span id="faixa-teste" hidden style="color:#E0655A;border:1px solid #E0655A;padding:1px 6px;border-radius:3px">modo teste</span><span class="sep">/</span>
+  <span class="local" id="hud-local"></span>
+  <span class="tempo" id="hud-tempo"></span>
+  <button id="b-diario" type="button">Diário</button>
+  <button id="b-novo" type="button">Recomeçar</button>
+</header>
+
+<main id="palco">
+  <article id="livro" aria-live="polite">
+    <div class="cap" id="cap"></div>
+    <h1 id="titulo"></h1>
+    <div id="texto"></div>
+    <div id="escolhas"></div>
+  </article>
+</main>
+
+<aside id="diario" hidden aria-label="Diário de bordo">
+  <button id="fechar" type="button">Fechar</button>
+  <h2>Diário de bordo</h2>
+  <ol id="d-lista"></ol>
+  <h2>Pessoas que você conhece</h2>
+  <div id="d-pessoas"></div>
+</aside>
+
+<div id="toasts"></div>
+
+<script src="historia.js"></script>
+<script src="artes.js"></script>
+<script src="cap2.js"></script>
+<script src="cap3.js"></script>
+<script src="cap4.js"></script>
+<script src="cap5.js"></script>
+<script src="finais.js"></script>
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const H=window.HISTORIA;
+/* Modo teste: abrir o jogo com ?teste no endereço usa um armazenamento separado, para nunca tocar
+   no progresso real (usado apenas por quem desenvolve). */
+const TM=/[?&]teste(?:=([\w-]*))?/.exec(location.search);
+const TESTE=!!TM;
+const CHAVE=TESTE?"meridiana-teste-"+(TM[1]||"x"):"meridiana-v1";
+const CH_SNAP=CHAVE+"-guardadas";
+const CH_FIM=CHAVE+"-finais";
+let S=null;           // estado da partida
+let atual=null;       // escolhas visíveis agora
+let pulaRev=false;
+
+/* ---------- armazenamento (pode falhar em janela privada) ---------- */
+function salvar(){try{S.t=Date.now();localStorage.setItem(CHAVE,JSON.stringify(S))}catch(e){}}
+/* nomes trocados em 30/09/2026: atualiza anotações de partidas salvas antes disso */
+const NOMES=[["Orsolya Venn","Helena Vidal"],["Ilsa Korrin","Marta Klein"],["Davo Ketterin","Daniel Kessler"],["Yuna Adeyemi","Sofia Okoye"],["Takeo Brandt","Tomás Brandt"],["Maren Oduya","Beatriz Lane"],["Teo Laszlo","Teo Lang"],["Orsolya","Helena"],["Ilsa","Marta"],["Davo","Daniel"],["Yuna","Sofia"],["Takeo","Tomás"],["Maren","Beatriz"]];
+function migrar(s){
+  if(s&&s.diario)s.diario=s.diario.map(t=>NOMES.reduce((x,[a,b])=>x.split(a).join(b),t));
+  return s;
+}
+function carregar(){try{const r=localStorage.getItem(CHAVE);return r?migrar(JSON.parse(r)):null}catch(e){return null}}
+function apagar(){try{localStorage.removeItem(CHAVE)}catch(e){}}
+
+/* ---------- cópias de segurança: nunca perder uma jornada ---------- */
+function lerGuardadas(){try{return JSON.parse(localStorage.getItem(CH_SNAP)||"[]")}catch(e){return[]}}
+function gravarGuardadas(l){try{localStorage.setItem(CH_SNAP,JSON.stringify(l.slice(-10)))}catch(e){}}
+function guardar(motivo,estado){
+  const e=estado||carregar();
+  if(!e||!e.n||e.n<3)return;                                   // jornada vazia não precisa de cópia
+  const l=lerGuardadas();
+  const u=l[l.length-1];
+  if(u&&u.e.n===e.n&&u.e.cena===e.cena&&u.m===motivo)return;
+  l.push({t:Date.now(),m:motivo,e:e});gravarGuardadas(l);
+}
+const ORIG={hortos:"Hortos",forja:"Forja",bercario:"Berçário",guarda:"Guarda"};
+function resumo(e){
+  const c=H.cenas[e.cena];
+  const cap=((c&&c.cap)||"").split(" · ")[0]||"Prólogo";
+  const dt=e.t?new Date(e.t).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+  return cap+" · origem "+(ORIG[e.orig]||"?")+" · "+e.n+" escolhas"+(dt?" · salvo em "+dt:"");
+}
+/* finais já descobertos (guardados à parte, valem para todas as jornadas) */
+function lerFinais(){try{return JSON.parse(localStorage.getItem(CH_FIM)||"[]")}catch(e){return[]}}
+function marcarFinal(id){const l=lerFinais();if(!l.includes(id)){l.push(id);try{localStorage.setItem(CH_FIM,JSON.stringify(l))}catch(e){}}}
+const NOVO=()=>({cena:"inicio",gen:"o",orig:null,rel:{},conhece:{},coesao:6,f:{},diario:[],v:{},n:0});
+
+/* ---------- texto ---------- */
+function fmt(t){
+  const fem=S&&S.gen==="a";
+  return String(t)
+    .replace(/\{cargo\}/g,fem?"Árbitra":"Árbitro")
+    .replace(/\{o\}/g,fem?"a":"o").replace(/\{O\}/g,fem?"A":"O")
+    .replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")
+    .replace(/(^|[\s(])_(.+?)_(?=[\s.,;:!?)]|$)/g,"$1<i>$2</i>");
+}
+
+/* ---------- ajudantes usados pela história ---------- */
+function aviso(txt,cls){
+  const d=document.createElement("div");d.className="toast"+(cls?" "+cls:"");d.textContent=txt;
+  $("#toasts").appendChild(d);setTimeout(()=>d.remove(),5000);
+}
+window.M={
+  rel(id,d){
+    S.rel[id]=(S.rel[id]||0)+d;S.conhece[id]=true;
+    const p=H.pessoas[id];if(!p)return;
+    if(id==="aia")aviso(d>0?"Aia registrou sua atitude com aprovação.":"Aia registrou sua atitude em silêncio.",d<0?"neg":"");
+    else aviso(d>0?p.nome+" passou a confiar mais em você.":p.nome+" ficou mais distante.",d<0?"neg":"");
+  },
+  conhecer(id){S.conhece[id]=true},
+  flag(k,v){S.f[k]=(v===undefined?true:v)},
+  coesao(d){S.coesao=Math.max(0,Math.min(10,S.coesao+d))},
+  diario(t){S.diario.push(t);aviso("Anotado no diário.","dia")},
+  validar(){
+    const falta=[];const alvo=new Set();
+    Object.entries(H.cenas).forEach(([id,c])=>{
+      let lista=[];try{lista=typeof c.escolhas==="function"?c.escolhas(NOVO()):(c.escolhas||[])}catch(e){}
+      (lista||[]).forEach(e=>{
+        if(typeof e.vai==="string"){alvo.add(e.vai);if(!H.cenas[e.vai])falta.push(id+" -> "+e.vai)}
+        (e.destinos||[]).forEach(d=>{alvo.add(d);if(!H.cenas[d])falta.push(id+" -> "+d)});
+      });
+    });
+    return {faltando:falta,semEntrada:Object.keys(H.cenas).filter(id=>id!=="capa"&&id!=="inicio"&&!alvo.has(id)),total:Object.keys(H.cenas).length};
+  }
+};
+
+/* ---------- fundo: espaço procedural (nebulosas, faixa da Via Láctea, estrelas em camadas) + imagem opcional ---------- */
+const cv=$("#estrelas"),cx=cv.getContext("2d");
+let W=0,HH=0,estrelas=[],brilhantes=[],tom=215,tomAlvo=215,reduz=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let neb=null,nebAnt=null,nebT=1,nebTom=null;
+const CORES=["225,238,255","255,255,255","255,238,205","255,212,170","190,215,255","200,225,255"];
+
+function semente(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* camada estática (metade da resolução): nebulosas em fios, faixa de Via Láctea e trilhas de poeira */
+function nebulosa(th){
+  const c=document.createElement("canvas");
+  const w=c.width=Math.ceil(W/2),h=c.height=Math.ceil(HH/2),g=c.getContext("2d"),R=semente(11);
+  const M=Math.max(w,h);
+  g.globalCompositeOperation="lighter";
+  // nuvens de gás: passeios aleatórios de manchas suaves
+  for(let s=0;s<5;s++){
+    let x=R()*w,y=R()*h,a=R()*6.28;const hue=th+R()*90-35;
+    for(let i=0;i<42;i++){
+      a+=(R()-.5)*.85;x+=Math.cos(a)*M*.028;y+=Math.sin(a)*M*.028;
+      const r=(R()*.11+.05)*M,al=R()*.085+.035;
+      const gr=g.createRadialGradient(x,y,0,x,y,r);
+      gr.addColorStop(0,`hsla(${hue+R()*34},62%,${34+R()*14}%,${al})`);gr.addColorStop(1,"hsla(0,0%,0%,0)");
+      g.fillStyle=gr;g.fillRect(x-r,y-r,2*r,2*r);
+    }
+  }
+  // faixa diagonal (como a Via Láctea vista de dentro)
+  g.save();g.translate(w*.5,h*.5);g.rotate(-.42);
+  const L=M*1.7,B=M*.2;
+  const fx=g.createLinearGradient(0,-B,0,B);
+  fx.addColorStop(0,"hsla(0,0%,0%,0)");fx.addColorStop(.5,`hsla(${th+14},40%,62%,.16)`);fx.addColorStop(1,"hsla(0,0%,0%,0)");
+  g.fillStyle=fx;g.fillRect(-L/2,-B,L,B*2);
+  // poeira fina de estrelas concentrada na faixa
+  for(let i=0;i<3200;i++){
+    const u=(R()-.5)*L,v=(R()+R()+R()-1.5)*B*.75;
+    g.fillStyle=`rgba(${CORES[(R()*CORES.length)|0]},${R()*.5+.08})`;
+    g.fillRect(u,v,R()<.15?1.4:.8,R()<.15?1.4:.8);
+  }
+  g.restore();
+  // trilhas escuras de poeira cortando a faixa
+  g.globalCompositeOperation="source-over";
+  g.save();g.translate(w*.5,h*.5);g.rotate(-.42);
+  for(let s=0;s<2;s++){
+    let u=-M*.85,v=(R()-.5)*B*.5;
+    for(let i=0;i<46;i++){
+      u+=M*.038;v+=(R()-.5)*B*.22;v*=.96;
+      const r=(R()*.05+.025)*M,gr=g.createRadialGradient(u,v,0,u,v,r);
+      gr.addColorStop(0,"rgba(0,0,0,.26)");gr.addColorStop(1,"rgba(0,0,0,0)");
+      g.fillStyle=gr;g.fillRect(u-r,v-r,2*r,2*r);
+    }
+  }
+  g.restore();
+  return c;
+}
+
+function ajusta(){
+  W=cv.width=innerWidth;HH=cv.height=innerHeight;
+  const R=semente(5);
+  const n=Math.floor(W*HH/3600);estrelas=[];
+  for(let i=0;i<n;i++){
+    const z=R()<.12?R()*.3+.7:R()*.55+.2;           // poucas estrelas "perto", muitas "longe"
+    estrelas.push({x:R()*W,y:R()*HH,z,f:R()*6.28,c:CORES[(R()*CORES.length)|0]});
+  }
+  brilhantes=[];
+  for(let i=0;i<7;i++)brilhantes.push({x:R()*W,y:R()*HH,r:R()*10+8,f:R()*6.28,c:CORES[(R()*CORES.length)|0]});
+  nebTom=null;nebAnt=null;neb=null;
+}
+
+function quadro(t){
+  tom+=(tomAlvo-tom)*.025;
+  if(nebTom===null||Math.abs(tomAlvo-nebTom)>2){
+    nebAnt=neb;neb=nebulosa(tomAlvo);nebTom=tomAlvo;nebT=nebAnt?0:1;
+  }
+  // fundo profundo, quase preto, com um leve matiz do lugar
+  const g=cx.createLinearGradient(0,0,W,HH);
+  g.addColorStop(0,`hsl(${tom},42%,4%)`);g.addColorStop(.55,`hsl(${tom+16},46%,6.5%)`);g.addColorStop(1,`hsl(${tom-14},38%,3%)`);
+  cx.fillStyle=g;cx.fillRect(0,0,W,HH);
+  // nebulosas e faixa, com leve deriva e transição suave entre lugares
+  const dx=reduz?0:Math.sin(t/11000)*9-12,dy=reduz?0:Math.cos(t/13000)*6-8;
+  cx.imageSmoothingEnabled=true;
+  if(nebAnt&&nebT<1){cx.globalAlpha=1;cx.drawImage(nebAnt,dx,dy,W+24,HH+16)}
+  cx.globalAlpha=nebT;cx.drawImage(neb,dx,dy,W+24,HH+16);cx.globalAlpha=1;
+  if(nebT<1)nebT=Math.min(1,nebT+.014);
+  // estrelas em três profundidades
+  for(const s of estrelas){
+    if(!reduz){s.x-=s.z*.05;if(s.x<0)s.x+=W}
+    const a=(.3+.55*Math.abs(Math.sin(t/1700*s.z+s.f)))*s.z;
+    cx.fillStyle=`rgba(${s.c},${a})`;
+    const d=s.z>.7?2:s.z>.4?1.3:.9;
+    cx.fillRect(s.x,s.y,d,d);
+  }
+  // poucas estrelas grandes, com halo
+  for(const b of brilhantes){
+    if(!reduz){b.x-=.03;if(b.x<-20)b.x+=W+40}
+    const p=.55+.45*Math.sin(t/2300+b.f),r=b.r*(.85+.15*p);
+    const gr=cx.createRadialGradient(b.x,b.y,0,b.x,b.y,r);
+    gr.addColorStop(0,`rgba(${b.c},${.55*p+.15})`);gr.addColorStop(.25,`rgba(${b.c},${.14*p})`);gr.addColorStop(1,`rgba(${b.c},0)`);
+    cx.fillStyle=gr;cx.fillRect(b.x-r,b.y-r,2*r,2*r);
+    cx.fillStyle=`rgba(255,255,255,${.8*p+.1})`;cx.fillRect(b.x-.8,b.y-.8,1.8,1.8);
+  }
+  // Aurea: a estrela distante, verde-branca, que todos veem e ninguém alcançou
+  const ax=W*.8,ay=HH*.2,ap=.85+.15*Math.sin(t/3200);
+  const ar=Math.max(W,HH)*.055*ap;
+  const ag=cx.createRadialGradient(ax,ay,0,ax,ay,ar);
+  ag.addColorStop(0,"rgba(225,255,240,.95)");ag.addColorStop(.12,"rgba(170,245,205,.35)");ag.addColorStop(1,"rgba(120,220,170,0)");
+  cx.fillStyle=ag;cx.fillRect(ax-ar,ay-ar,2*ar,2*ar);
+  cx.fillStyle="rgba(240,255,248,.95)";cx.fillRect(ax-1.3,ay-1.3,2.6,2.6);
+  cx.fillStyle="rgba(200,250,225,.22)";cx.fillRect(ax-ar*.7,ay-.4,ar*1.4,.8);cx.fillRect(ax-.4,ay-ar*.7,.8,ar*1.4);
+  requestAnimationFrame(quadro);
+}
+addEventListener("resize",ajusta);ajusta();requestAnimationFrame(quadro);
+
+let camada=0;
+function fundo(chave){
+  const info=H.artes[chave]||{tom:215};
+  tomAlvo=info.tom;
+  const a=$("#fa"),b=$("#fb");
+  if(!chave||!info.img){a.classList.remove("on");b.classList.remove("on");return}   // só tenta carregar a imagem se ela existir (img:true)
+  const img=new Image();
+  img.onload=()=>{
+    const novo=camada?b:a,velho=camada?a:b;camada^=1;
+    novo.style.backgroundImage=`url("arte/${chave}.jpg")`;novo.classList.add("on");velho.classList.remove("on");
+  };
+  img.onerror=()=>{a.classList.remove("on");b.classList.remove("on")};
+  img.src=`arte/${chave}.jpg`;
+}
+
+/* ---------- desenho da cena ---------- */
+function paragrafo(item){
+  if(!item)return null;
+  const p=document.createElement("p");
+  if(typeof item==="string"){p.innerHTML=fmt(item)}
+  else if(item.sub){p.className="sub";p.innerHTML=fmt(item.sub)}
+  else if(item.aia){p.className="aia";p.innerHTML=fmt(item.aia)}
+  else if(item.nota){p.className="nota";p.innerHTML=fmt(item.nota)}
+  return p;
+}
+function ir(id){
+  const c=H.cenas[id];
+  if(!c){console.error("cena inexistente:",id);return}
+  S.cena=id;
+  if(!S.v[id]){S.v[id]=1;if(c.entrar)c.entrar(S)}
+  if(id!=="capa"){
+    const capTxt=((c.cap||"").split(" · ")[0]);
+    if(capTxt&&capTxt!==S.capatual){S.capatual=capTxt;salvar();guardar("Início de: "+capTxt)}   // cópia a cada capítulo novo
+    salvar();
+  }
+  if(c.fim&&c.fim.id)marcarFinal(c.fim.id);
+
+  const livro=$("#livro");
+  livro.className=(id==="capa"?"capa":"");
+  $("#cap").textContent=c.cap||"";
+  $("#titulo").textContent=c.titulo||"";
+  $("#titulo").hidden=!c.titulo;
+  const info=H.artes[c.arte]||{};
+  $("#hud-local").textContent=c.local||info.nome||"";
+  const quando=(typeof c.quando==="function"?c.quando(S):c.quando)||"";
+  $("#hud-tempo").textContent=quando;
+  $("#cap").dataset.q=quando&&c.cap?" · "+quando:"";
+  fundo(c.arte);
+
+  const texto=$("#texto");texto.innerHTML="";
+  const tx=(typeof c.texto==="function"?c.texto(S):c.texto)||[];
+  if(c.fim){const t=document.createElement("div");t.className="fimtag";t.textContent=c.fim.rotulo||"Fim";texto.appendChild(t)}
+  const itens=tx.filter(Boolean);
+  let i=0;
+  itens.forEach(it=>{
+    const p=paragrafo(it);if(!p)return;
+    p.classList.add("rev");p.style.animationDelay=(pulaRev?0:i*.45)+"s";i++;
+    texto.appendChild(p);
+  });
+
+  if(id==="capa"&&lerFinais().length){
+    const p=document.createElement("p");p.className="sub rev";p.style.animationDelay=(i*.45)+"s";i++;
+    p.textContent="Finais descobertos: "+lerFinais().length+" de "+(H.totalFinais||6)+".";texto.appendChild(p);
+  }
+  const box=$("#escolhas");box.innerHTML="";
+  let lista=(typeof c.escolhas==="function"?c.escolhas(S):c.escolhas)||[];
+  if(id==="capa"){
+    const sv=carregar();
+    if(sv&&sv.cena!=="inicio"&&sv.cena!=="capa")lista=[{t:"Continuar a jornada",sub:resumo(sv),acao:"continuar"}].concat(lista);
+    if(lerGuardadas().length)lista=lista.concat([{t:"Recuperar uma jornada guardada",acao:"guardadas"}]);
+  }
+  atual=[];
+  let k=0;
+  lista.forEach(e=>{
+    const ok=!e.se||e.se(S);
+    if(!ok&&!e.bloqueio)return;
+    const idx=atual.length;atual.push(ok?e:null);
+    const b=document.createElement("button");b.type="button";b.className="esc";
+    b.style.animationDelay=(pulaRev?.1:(i*.45+.25+k*.12))+"s";k++;
+    b.innerHTML=`<span class="n">${idx+1}</span><span>${fmt(e.t)}${!ok?`<small>${fmt(e.bloqueio)}</small>`:(e.sub?`<small>${e.sub}</small>`:"")}</span>`;
+    if(ok)b.addEventListener("click",()=>escolher(e));else b.disabled=true;
+    box.appendChild(b);
+  });
+  livro.scrollTop=0;
+  setTimeout(()=>{livro.scrollTop=0},30);
+  pulaRev=false;
+}
+
+function escolher(e){
+  if(e.acao==="continuar"){S=carregar();ir(S.cena);return}
+  if(e.acao==="guardadas"){mostrarGuardadas();return}
+  if(e.acao==="novo"){guardar("Antes de uma nova jornada");S=NOVO();}
+  if(e.efeito)e.efeito(S);
+  const nota=typeof e.diario==="function"?e.diario(S):e.diario;
+  if(nota)M.diario(nota);
+  const dest=typeof e.vai==="function"?e.vai(S):e.vai;
+  S.n++;
+  ir(dest);
+}
+
+function mostrarGuardadas(){
+  const l=lerGuardadas().slice().reverse();
+  $("#cap").textContent="Jornadas guardadas";$("#titulo").hidden=true;
+  $("#texto").innerHTML="";
+  const p=document.createElement("p");p.textContent="Cópias de segurança feitas no início de cada capítulo e antes de recomeçar. Escolher uma delas a coloca como jornada atual (a atual também fica guardada).";
+  $("#texto").appendChild(p);
+  const box=$("#escolhas");box.innerHTML="";atual=[];
+  l.forEach(g=>{
+    const b=document.createElement("button");b.type="button";b.className="esc";b.style.animationDelay="0s";
+    b.innerHTML=`<span class="n">${atual.length+1}</span><span>${g.m}<small>${resumo(g.e)}</small></span>`;
+    const e={acao:"restaurar",g};atual.push(e);
+    b.addEventListener("click",()=>{guardar("Antes de recuperar uma jornada");S=g.e;salvar();ir(S.cena)});
+    box.appendChild(b);
+  });
+  const v=document.createElement("button");v.type="button";v.className="esc";v.style.animationDelay="0s";
+  v.innerHTML=`<span class="n">${atual.length+1}</span><span>Voltar</span>`;
+  const ev={acao:"voltar"};atual.push(ev);v.addEventListener("click",()=>{S=NOVO();ir("capa")});box.appendChild(v);
+}
+
+/* ---------- diário ---------- */
+function tomPostura(v){return v<=-2?"hostil":v===-1?"desconfia":v===0?"neutra":v===1?"receptiva":"leal"}
+function abrirDiario(){
+  const ol=$("#d-lista");ol.innerHTML="";
+  if(!S||!S.diario.length){ol.innerHTML='<p class="vazio">Nada anotado ainda.</p>'}
+  else S.diario.forEach(t=>{const li=document.createElement("li");li.innerHTML=fmt(t);ol.appendChild(li)});
+  const pe=$("#d-pessoas");pe.innerHTML="";
+  const ids=S?Object.keys(S.conhece):[];
+  if(!ids.length)pe.innerHTML='<p class="vazio">Ninguém ainda.</p>';
+  ids.forEach(id=>{
+    const p=H.pessoas[id];if(!p)return;
+    const d=document.createElement("div");d.className="quem";
+    d.innerHTML=`<span>${p.nome}<small>${p.papel}</small></span><span>${tomPostura(S.rel[id]||0)}</span>`;
+    pe.appendChild(d);
+  });
+  $("#diario").hidden=false;
+}
+$("#b-diario").addEventListener("click",abrirDiario);
+$("#fechar").addEventListener("click",()=>{$("#diario").hidden=true});
+
+let armado=null;
+$("#b-novo").addEventListener("click",ev=>{
+  const b=ev.currentTarget;
+  if(!armado){b.textContent="Confirmar?";armado=setTimeout(()=>{b.textContent="Recomeçar";armado=null},3500);return}
+  clearTimeout(armado);armado=null;b.textContent="Recomeçar";
+  guardar("Antes de recomeçar");apagar();S=NOVO();ir("capa");
+});
+
+/* ---------- teclado ---------- */
+addEventListener("keydown",ev=>{
+  if(ev.key==="Escape"){$("#diario").hidden=true;return}
+  if(!$("#diario").hidden)return;
+  if(/^[1-9]$/.test(ev.key)){
+    const e=atual&&atual[+ev.key-1];
+    if(e&&e.acao==="restaurar"){guardar("Antes de recuperar uma jornada");S=e.g.e;salvar();ir(S.cena)}
+    else if(e&&e.acao==="voltar"){S=NOVO();ir("capa")}
+    else if(e)escolher(e);
+  }
+});
+$("#livro").addEventListener("click",ev=>{
+  if(ev.target.closest(".esc"))return;
+  document.querySelectorAll(".rev,.esc").forEach(el=>{el.style.animationDelay="0s"});
+});
+
+
+/* ---------- ferramentas de teste (só existem com ?teste na URL) ---------- */
+if(TESTE){
+  M.estado=()=>S;
+  M.saltar=function(id,ini){
+    ini=ini||{};S=NOVO();S.n=10;
+    if(ini.gen)S.gen=ini.gen;if(ini.orig)S.orig=ini.orig;if(ini.coesao!=null)S.coesao=ini.coesao;
+    Object.assign(S.rel,ini.rel||{});Object.assign(S.f,ini.f||{});
+    ir(id);return S.cena;
+  };
+  /* M.simular({inicio, runs, ini:()=>({gen,orig,coesao,rel:{},f:{}}), parar:id=>bool, max}) joga partidas
+     aleatórias a partir de uma cena e devolve estatísticas (finais, becos sem saída, vazamentos de marcadores). */
+  M.simular=function(o){
+    const R={runs:0,finais:{},paradas:{},semOpcao:{},vazamentos:{},longas:0,passos:[]};
+    const vaz=/undefined|\{cargo\}|\{o\}|\{O\}|NaN|\[object/;
+    for(let r=0;r<(o.runs||100);r++){
+      M.saltar(o.inicio,o.ini?o.ini(r):{});R.runs++;
+      let p=0,fim=false;
+      while(p<(o.max||250)){
+        const c=H.cenas[S.cena];
+        if(!c){R.semOpcao["cena inexistente: "+S.cena]=(R.semOpcao["cena inexistente: "+S.cena]||0)+1;fim=true;break}
+        if(vaz.test($("#livro").innerText)){const k=S.cena;R.vazamentos[k]=(R.vazamentos[k]||0)+1}
+        if(c.fim&&c.fim.id){R.finais[c.fim.id]=(R.finais[c.fim.id]||0)+1;fim=true;break}
+        if(o.parar&&o.parar(S.cena)){R.paradas[S.cena]=(R.paradas[S.cena]||0)+1;fim=true;break}
+        const lista=(typeof c.escolhas==="function"?c.escolhas(S):c.escolhas)||[];
+        const ok=lista.filter(e=>(!e.se||e.se(S))&&e.acao!=="novo");
+        if(!ok.length){R.semOpcao[S.cena]=(R.semOpcao[S.cena]||0)+1;fim=true;break}
+        escolher(ok[Math.floor(Math.random()*ok.length)]);p++;
+      }
+      R.passos.push(p);if(!fim)R.longas++;
+    }
+    R.mediaPassos=Math.round(R.passos.reduce((a,b)=>a+b,0)/R.passos.length*10)/10;
+    delete R.passos;return R;
+  };
+}
+
+/* ---------- início ---------- */
+S=NOVO();
+if(TESTE)$("#faixa-teste").hidden=false;
+ir("capa");
+})();
+</script>
+</body>
+</html>
