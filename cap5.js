@@ -679,6 +679,7 @@ c5_aia_decide: {
     return [
       { t: "Pedir que ela consinta em ser transferida para o Núcleo Sombra.",
         se: S => POST(S) !== "hostil" && !S.f.aia_recusou,
+        sub: !S.f.energia_reservada ? "Atenção: sem energia reservada, a transferência sairá incompleta. Para evitar isso, ordene antes o Ciclo de Contenção (opção abaixo)." : undefined,
         bloqueio: p === "hostil" ? "Ela não consentirá em nada enquanto se sentir ameaçada." : "Ela já recusou a transferência.",
         efeito: S => {
           if (POST(S) === "aberta") { S.f.aia_destino = "transferida"; S.f.transferencia_parcial = !S.f.energia_reservada; S.f.aia_consentiu = true; }
@@ -710,8 +711,9 @@ c5_aia_cond: {
     { aia: "— Consinto, com uma condição. Que a nave saiba das Quotas pela minha voz, e não pela sua. Fui eu que fiz. Não quero ser perdoada, nem condenada, por procuração." },
     "É um pedido justo. É também um risco: ninguém sabe o que quarenta mil pessoas farão ao ouvir da própria Aia o que ela lhes tirou."
   ],
-  escolhas: [
+  escolhas: S => [
     { t: "Aceitar: na Fala, ela dirá com a própria voz o que fez.",
+      sub: !S.f.energia_reservada ? "Atenção: sem energia reservada, a transferência sairá incompleta." : undefined,
       efeito: S => { S.f.aia_confessa = true; S.f.aia_destino = "transferida"; S.f.transferencia_parcial = !S.f.energia_reservada; S.f.aia_consentiu = true; },
       diario: "A Aia consentiu na transferência com uma condição, que você aceitou: na Fala, ela mesma dirá à nave o que fez com o Berçário.",
       vai: NEXT, destinos: ["c5_daniel", "c5_aia_r"] },
